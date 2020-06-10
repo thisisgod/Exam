@@ -1,0 +1,25 @@
+{
+  "name": "webproject",
+  "version": "1.0.0",
+  "description": "WebProject",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/thisisgod/WebProject.git"
+  },
+  "keywords": [
+    "Web"
+  ],
+  "author": "skyde47",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/thisisgod/WebProject/issues"
+  },
+  "homepage": "https://github.com/thisisgod/WebProject#readme",
+  "dependencies": {
+    "express": "^4.17.1"
+  }
+}
