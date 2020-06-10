@@ -4,7 +4,7 @@
   "description": "WebProject",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "babel-node init.js --delay 2"
   },
   "repository": {
     "type": "git",
@@ -19,7 +19,21 @@
     "url": "https://github.com/thisisgod/WebProject/issues"
   },
   "homepage": "https://github.com/thisisgod/WebProject#readme",
+  "devDependencies": {
+    "@babel/core": "^7.10.2",
+    "@babel/node": "^7.10.1",
+    "@babel/preset-env": "^7.10.2",
+    "install": "^0.12.2",
+    "npm": "^6.13.1"
+  },
   "dependencies": {
-    "express": "^4.17.1"
+    "cookie-parser": "^1.4.5",
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "express-session": "^1.17.1",
+    "http-errors": "^1.7.3",
+    "morgan": "^1.10.0",
+    "mysql": "^2.18.1",
+    "pug": "^3.0.0"
   }
 }
