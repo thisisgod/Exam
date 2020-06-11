@@ -1,0 +1,48 @@
+extends ./layouts/main
+
+block content
+    div
+        h3 Score
+            form(action="/input" method="post")
+                table
+                    tr
+                        td 5지선다 샘플1번 문제 다음 중 숫자 3인 것은?(객관식) :
+                    tr 
+                        td 
+                            div
+                                span 1
+                                input(type='radio', name='sample', value='1')#1
+                                span 2
+                                input(type='radio', name='sample', value='2')#2
+                                span 3
+                                input(type='radio', name='sample', value='3')#3
+                                span 4
+                                input(type='radio', name='sample', value='4')#4
+                                span 5
+                                input(type='radio', name='sample', value='5')#5
+                    tr
+                        td 5지선다 샘플2 (라디오 버튼) : 
+                        td 
+                            div
+                                span 1
+                                input(type='radio', name='sample', value='1')#1
+                                span 2
+                                input(type='radio', name='sample', value='2')#2
+                                span 3
+                                input(type='radio', name='sample', value='3')#3
+                                span 4
+                                input(type='radio', name='sample', value='4')#4
+                                span 5
+                                input(type='radio', name='sample', value='5')#5
+                    tr
+                        td 점수 입력 샘플2 : 
+                        td 
+                            input(type='number',name='sample', max='5',min='0')
+                    tr
+                        td 점수 입력 샘플3 : 
+                        td 
+                            input(type='number',name='sample', max='5',min='0')
+                    tr
+                        td
+                            input#btn(type='submit' value="제출")
+                    

@@ -1,0 +1,39 @@
+extends ./layouts/main
+
+block content
+    style.
+        table,th,td {
+                border:1px solid darkslategrey;
+                padding:auto;
+                margin:auto;
+                margin-top:50px;
+                width:350px;
+                text-align:center;
+                vertical-align:middle;
+                line-height:50px;
+            }
+    
+    div 
+        h3 시험지 생성
+            form(action="/create_exam" method="post")
+                table
+                    tr
+                        td 시험 이름 
+                        td 
+                            input(type="text", name="title")
+                    tr
+                        td 시작 날짜
+                        td
+                            input(type="text", name="vald_strt_dd", value = "00000000")
+                    tr
+                        td 종료 날짜
+                        td
+                            input(type="text", name="vald_end_dd", value="29999999")
+                    tr
+                        td 제작자
+                        td
+                            input(type="text", name="rgstr_id")
+                    tr
+                        td
+                        td
+                            input(type="submit", value="생성")

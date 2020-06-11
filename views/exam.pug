@@ -1,0 +1,62 @@
+extends ./layouts/main
+
+block content
+    style.
+        th,td {
+                border:1px solid darkslategrey;
+                padding:auto;
+                margin:auto;
+                margin-top:50px;
+                width:400px;
+                text-align:center;
+            }
+    script.
+        var idx = #{idx};
+        var id = new Array(#{id});
+        var i=0;
+    
+    -var empty = false;
+    -if(idx==0) empty = true;
+    #exam
+        if empty
+            h3 생성된 시험이 없습니다.
+        else 
+            table  
+                th 시험 번호
+                th 시험
+                th 시험 시작 일
+                th 시험 종료 일
+                th 제작자
+                th 제작일자
+                th 수정자
+                th 수정일자
+                th
+                each obj in list
+                    tr 
+                        td 
+                            script.
+                                document.write(i);
+                        td
+                            p=obj.title
+                        td
+                            p=obj.vald_strt_dd
+                        td
+                            p=obj.vald_end_dd
+                        td
+                            p=obj.rgstr_id
+                        td
+                            p=obj.rgst_dt
+                        td
+                            p=obj.updtr_id
+                        td
+                            p=obj.updt_dt
+                        td
+                            table
+                                td 
+                                    p 응시
+                                td
+                                    script.
+                                        document.write("<a href=\"/prob/"+ id[i] + "\"> 수정</a>");
+                                        i++;
+                                td
+                                    p 삭제
