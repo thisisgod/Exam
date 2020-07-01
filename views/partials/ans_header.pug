@@ -11,6 +11,11 @@ header.header
             li.nav-item
                 script.
                     document.write("<a href=\"/prob/"+ #{exam_id} + "\"> Prob</a>");
+            
             li.nav-item
                 script.
-                    document.write("<a href=\"/create_prob/"+ #{exam_id} + "\"> Create_Prob</a>");
+                    document.write("<a href=\"/answer/"+ #{prob_id} + "\"> Answer</a>");
+
+            li.nav-item
+                script.
+                    document.write("<a href=\"/create_answer/"+ #{prob_id} + "\"> Create_Ans</a>");

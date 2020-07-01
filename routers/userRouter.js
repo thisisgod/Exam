@@ -1,7 +1,6 @@
 import express from "express";
 import db_config from "../config/db";
 import multer from "multer"
-import Q from "q"
 import fs from "fs"
 
 var storage = multer.diskStorage({
@@ -18,7 +17,24 @@ var storage = multer.diskStorage({
         // console.log(img_src + file.mimetype.split('/')[1]);
     }
 });
+
+var storage1 = multer.diskStorage({
+    destination: function(req,file,cb){
+        var dir = 'imgs/exam' + req.body.exam_id + '/ans/';
+        cb(null, dir)
+        console.log(dir);
+    },
+    filename : function(req,file,cb){
+        // cb(null,img_src + file.mimetype.split('/')[1])
+        console.log(req.body)
+        console.log("ans_cnt : " + req.body.answer_cnt)
+        cb(null,'ans' + req.body.answer_cnt+'.'+file.mimetype.split('/')[1])
+        // console.log(img_src + file.mimetype.split('/')[1]);
+    }
+});
+
 var upload = multer({storage: storage})
+var upload1 = multer({storage: storage1})
 
 /* connect DB */
 var conn = db_config.init();
@@ -112,10 +128,6 @@ userRouter.get('/prob/:exam_id',function(req,res,next){
     });
 });
 
-userRouter.get('/prob',function(req,res,next){
-    res.render('home')
-})
-
 userRouter.get('/create_prob/:exam_id',function(req,res,next){
     var sql = "select count(prob_id) as count from problem where exam_id = "+req.params.exam_id;
     conn.query(sql,function(err,rows,fields){
@@ -146,5 +158,102 @@ userRouter.post('/create_prob/:exam_id',upload.single('file'),function(req,res,n
     });
 });
 
+userRouter.get('/answer/:prob_id',function(req,res,next){
+    var sql = "select * from problem where prob_id = "+req.params.prob_id
+    var exam_id
+    var prob_kind
+    conn.query(sql,function(err,rows,fields){
+        if(err)res.send(500,err)
+        else{
+            exam_id = rows[0].exam_id
+            prob_kind = rows[0].prob_kind
+            
+            if(prob_kind=='N'){//일반 객관식
+                sql = "select * from answer1 where prob_id = "+req.params.prob_id
+            }
+            else if(prob_kind=='P'){//그림 주관식
+                sql = "select * from answer2 where prob_id = "+req.params.prob_id
+            }
+            else{//주관식
+                sql = "select * from answer3 where prob_id = "+req.params.prob_id
+            }
+            
+            conn.query(sql,function(err,rows,fields){
+                if(err)res.send(500,err)
+                else{
+                    var idx = rows.length;
+                    var id = new Array(idx);
+                    for(var i=0;i<idx;i++){
+                        id[i] = rows[i].answ1_id;
+                    }
+                    if(idx==1)id[1]=1;
+                    res.render('answer',{
+                        list : rows,
+                        idx : idx,
+                        id : id,
+                        prob_id : req.params.prob_id,
+                        exam_id : exam_id,
+                        prob_kind : prob_kind
+                    });
+                }
+            })
+        }
+    })
+
+})
+
+userRouter.get('/create_answer/:prob_id',function(req,res,next){
+    var sql = "select prob_kind, exam_id from problem where prob_id = "+req.params.prob_id
+    var prob_kind
+    var exam_id
+    conn.query(sql,function(err,rows,fields){
+        if(err)res.render(500,err)
+        else{
+            console.log(rows)
+            prob_kind = rows[0].prob_kind
+            exam_id = rows[0].exam_id
+                    
+            if(prob_kind=='N')sql = "select count(answ1_id) as count from answer1 where prob_id = "+req.params.prob_id;
+            else if(prob_kind =='P')sql = "select count(answ2_id) as count from answer2 where prob_id = "+req.params.prob_id;
+            else sql = "select count(answ3_id) as count from answer3 where prob_id = "+req.params.prob_id;
+
+            conn.query(sql,function(err,rows,fields){
+                if(err)res.render(500,err)
+                else{
+                    res.render('create_answer',{
+                        answer_cnt : rows[0].count,
+                        exam_id : exam_id,
+                        prob_id : req.params.prob_id,
+                        prob_kind : prob_kind
+                    });
+                }
+            });
+        }
+    })
+})
+
+userRouter.post('/create_answer/:prob_id',upload1.single('file'),function(req,res,next){
+    var sql = "insert into answer"
+    if(req.body.prob_kind=='N')sql+=1;
+    else if(req.body.prob_kind=='P')sql+=2;
+    else sql+=3;
+    sql += " (prob_id, answ_value, rgstr_id, updtr_id) values ?";
+
+
+    var body = req.body;
+    var img_src = 'imgs/exam'+req.body.exam_id+'/ans/ans'+req.body.answer_cnt
+    var values
+    if(req.body.prob_kind=='P') values = [[req.params.prob_id, img_src, body.rgst_id, body.rgst_id]];
+    else values = [[req.params.prob_id, body.answer_value, body.rgst_id, body.rgst_id]];
+    conn.query(sql, [values], function(err, result){
+        if(err)console.log("insert errer"+err);
+        else  {
+            res.redirect('/answer/' + req.params.prob_id);
+            // redirect 는 url 로 직접 이동시켜주는것.
+            // 앞에 '/' 를 붙이면 절대경로
+            // 안붙이면 상대경로로 이동하게 된다 (현재 디렉토리부터 다음까지)
+        }
+    });
+})
 
 export default userRouter;

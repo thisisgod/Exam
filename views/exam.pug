@@ -15,15 +15,13 @@ block content
         var id = new Array(#{id});
         var i=0;
     
-    -var empty = false;
-    -if(idx==0) empty = true;
     #exam
-        if empty
+        if idx==0
             h3 생성된 시험이 없습니다.
         else 
             table  
                 th 시험 번호
-                th 시험
+                th 시험 제목
                 th 시험 시작 일
                 th 시험 종료 일
                 th 제작자
@@ -57,7 +55,7 @@ block content
                                 td
                                     script.
                                         document.write("<a href=\"/prob/"+ id[i] + "\"> 문제</a>");
-                                        i++;
+                                        i++
                                 td
                                     p 수정
                                 td

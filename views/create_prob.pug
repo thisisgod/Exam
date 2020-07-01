@@ -12,8 +12,11 @@ block content
                 vertical-align:middle;
                 line-height:50px;
             }
+        #head{
+            text-align:center;
+        }
     div
-        h3 문제 생성
+        h3#head 문제 생성
             script.
                 document.write("<form action=\"/create_prob/" + #{exam_id} + "\" method = \"post\" enctype=\"multipart/form-data\">");
 
@@ -22,8 +25,6 @@ block content
                     td 문제 이름
                     td
                         input(type="text", name="title")
-                        script.
-                            document.write("<input type=\"hidden\" value=\""+ #{prob_cnt} + "\" name=\"prob_cnt\">")
                 tr
                     td 문제 배점
                     td
@@ -48,4 +49,5 @@ block content
                     td
                         input(type="submit", value="생성")
                 script.
+                    document.write("<input type=\"hidden\" value=\""+ #{prob_cnt} + "\" name=\"prob_cnt\">")
                     document.write("</form>");    
