@@ -24,19 +24,23 @@ block content
                 th 문제 번호
                 th 문제
                 th 문제 종류
+                th 배점
                 th 제작자
                 th 제작일자
                 th 수정자
                 th 수정일자 
                 th
                 each obj in list
+                    -var idx = 1
                     tr 
                         td 
+                            p=idx
+                        td
+                            p=obj.prob_title
+                        td
+                            p=obj.prob_kind
+                        td
                             p=obj.prob_num
-                        td
-                            p=obj.title
-                        td
-                            p=obj.kind
                         td
                             p=obj.rgstr_id
                         td
@@ -47,11 +51,12 @@ block content
                             p=obj.updt_dt
                         td
                             table
-                                td 
-                                    p 응시
+                                td
+                                    p 수정
                                 td
                                     script.
-                                        document.write("<a href=\"/answer/"+ id[i] + "\"> 수정</a>");
+                                        document.write("<a href=\"/answer/"+ id[i] + "\"> 답안</a>");
                                         i++;
                                 td
                                     p 삭제
+                    -idx++
