@@ -239,7 +239,8 @@ userRouter.post('/create_answer/:prob_id',upload1.single('file'),function(req,re
     sql += " (prob_id, answ_value, rgstr_id, updtr_id) values ?";
 
     var body = req.body;
-    var img_src = 'imgs/exam'+req.body.exam_id+'/ans/ans'+req.body.answer_cnt+'.'+req.file.mimetype.split('/')[1]
+    var img_src
+    if(req.body.prob_kind=='P')img_src = 'imgs/exam'+req.body.exam_id+'/ans/ans'+req.body.answer_cnt+'.'+req.file.mimetype.split('/')[1]
     var values
     if(req.body.prob_kind=='P') values = [[req.params.prob_id, img_src, body.rgst_id, body.rgst_id]];
     else values = [[req.params.prob_id, body.answer_value, body.rgst_id, body.rgst_id]];
