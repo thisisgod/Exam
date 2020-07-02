@@ -11,6 +11,7 @@ app.set('view engine', "pug");
 // globally middlewares ex) ip ban... check log..
 app.use(cookieParser());
 app.use(bodyParser.urlencoded({extended: true}));
+app.use(bodyParser.json())
 app.use(morgan("dev"));
 app.use(session({
     key: 'sid',

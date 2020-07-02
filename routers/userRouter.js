@@ -144,7 +144,7 @@ userRouter.get('/create_prob/:exam_id',function(req,res,next){
 userRouter.post('/create_prob/:exam_id',upload.single('file'),function(req,res,next){
     var sql = "insert into problem (exam_id, prob_kind, prob_title, prob_num, prob_img, rgstr_id, updtr_id) values ?";
     var body = req.body;
-    var img_src = 'imgs/exam'+req.params.exam_id+'/prob/prob'+req.body.prob_cnt
+    var img_src = 'imgs/exam'+req.params.exam_id+'/prob/prob'+req.body.prob_cnt+'.'+req.file.mimetype.split('/')[1]
     console.log(body)
     var values = [[req.params.exam_id, body.kind, body.title, body.num, img_src, body.rgst_id, body.rgst_id]];
     conn.query(sql, [values], function(err, result){
@@ -209,7 +209,6 @@ userRouter.get('/create_answer/:prob_id',function(req,res,next){
     conn.query(sql,function(err,rows,fields){
         if(err)res.render(500,err)
         else{
-            console.log(rows)
             prob_kind = rows[0].prob_kind
             exam_id = rows[0].exam_id
                     
@@ -239,9 +238,8 @@ userRouter.post('/create_answer/:prob_id',upload1.single('file'),function(req,re
     else sql+=3;
     sql += " (prob_id, answ_value, rgstr_id, updtr_id) values ?";
 
-
     var body = req.body;
-    var img_src = 'imgs/exam'+req.body.exam_id+'/ans/ans'+req.body.answer_cnt
+    var img_src = 'imgs/exam'+req.body.exam_id+'/ans/ans'+req.body.answer_cnt+'.'+req.file.mimetype.split('/')[1]
     var values
     if(req.body.prob_kind=='P') values = [[req.params.prob_id, img_src, body.rgst_id, body.rgst_id]];
     else values = [[req.params.prob_id, body.answer_value, body.rgst_id, body.rgst_id]];

@@ -19,6 +19,7 @@ block content
         h3#head 문제 생성
             script.
                 document.write("<form action=\"/create_prob/" + #{exam_id} + "\" method = \"post\" enctype=\"multipart/form-data\">");
+                document.write("<input type=\"hidden\" value=\""+ #{prob_cnt} + "\" name=\"prob_cnt\">")
 
             table
                 tr
@@ -43,11 +44,10 @@ block content
                 tr
                     td 제작자
                     td
-                        input(type="text", name="rgst_id")
+                        input(type="text", name="rgst_id", value="1")
                 tr
                     td
                     td
                         input(type="submit", value="생성")
                 script.
-                    document.write("<input type=\"hidden\" value=\""+ #{prob_cnt} + "\" name=\"prob_cnt\">")
                     document.write("</form>");    
