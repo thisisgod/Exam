@@ -13,7 +13,7 @@ block content
     script.
         var idx = #{idx};
         var id = new Array(#{id});
-        var i=1;
+        var i=0;
 
     #prob
         if idx==0
@@ -33,7 +33,7 @@ block content
                     tr 
                         td 
                             script.
-                                document.write(i)
+                                document.write(i + 1)
                         td
                             p=obj.prob_title
                         td
