@@ -12,7 +12,6 @@ block content
             }
     script.
         var idx = #{idx};
-        var id = new Array(#{id});
         var i=0;
 
     #prob
@@ -33,7 +32,8 @@ block content
                     tr 
                         td 
                             script.
-                                document.write(i + 1)
+                                document.write(i)
+                                i++
                         td
                             p=obj.prob_title
                         td
@@ -53,8 +53,6 @@ block content
                                 td
                                     p 수정
                                 td
-                                    script.
-                                        document.write("<a href=\"/answer/"+ id[i] + "\"> 답안</a>");
-                                        i++
+                                    a(href="/answer/"+obj.prob_id) 답안
                                 td
                                     p 삭제

@@ -9,8 +9,6 @@ header.header
             li.nav-item
                 a(href="/exam") Exam
             li.nav-item
-                script.
-                    document.write("<a href=\"/prob/"+ #{exam_id} + "\"> Prob</a>");
+                a(href="/prob/"+exam_id) Prob
             li.nav-item
-                script.
-                    document.write("<a href=\"/create_prob/"+ #{exam_id} + "\"> Create_Prob</a>");
+                a(href="create_prob/"+exam_id) Create_Prob

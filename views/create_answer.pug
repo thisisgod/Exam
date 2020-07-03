@@ -22,27 +22,24 @@ block content
         
     div
         h3#head 답안 생성
-            script.
-                document.write("<form action=\"/create_answer/" + #{prob_id} + "\" method = \"post\" enctype=\"multipart/form-data\">");
-                document.write("<input type=\"hidden\" value=\""+ #{exam_id} + "\" name=\"exam_id\">")
-                document.write("<input type=\"hidden\" value=\""+ #{answer_cnt} + "\" name=\"answer_cnt\">")  
-                document.write("<input type=\"hidden\" value=\""+ '#{prob_kind}' + "\" name=\"prob_kind\">")              
-                
-            table
-                tr
-                    td 답안
-                    td
-                        if prob_kind == 'P'
-                            input(type="file", name="file" )
-                        else
-                            textarea#text(name='answer_value')
-                tr
-                    td 제작자
-                    td
-                        input(type="text", name="rgst_id")
-                tr
-                    td
-                    td
-                        input(type="submit", value="생성")
-                script.
-                    document.write("</form>");    
+            form(action="/create_answer/"+prob_id, method="post", enctype="multipart/form-data")
+                input(type="hidden", value = exam_id, name = "exam_id")
+                input(type="hidden", value = answer_cnt, name="answer_cnt")
+                input(type="hidden", value = prob_kind, name="prob_kind")
+
+                table
+                    tr
+                        td 답안
+                        td
+                            if prob_kind == 'P'
+                                input(type="file", name="file" )
+                            else
+                                textarea#text(name='answer_value')
+                    tr
+                        td 제작자
+                        td
+                            input(type="text", name="rgst_id")
+                    tr
+                        td
+                        td
+                            input(type="submit", value="생성")

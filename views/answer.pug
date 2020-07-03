@@ -32,7 +32,7 @@ block content
                                 document.write(i);
                                 i++
                         td
-                            p=obj.answ_value
+                            img(src = obj.answ_value, width="200", height="200")
                         td
                             p=obj.rgstr_id
                         td
@@ -46,4 +46,9 @@ block content
                                 td
                                     p 수정
                                 td
-                                    p 삭제
+                                    if prob_kind == 'N'
+                                        a(href="/delete_answer1/"+obj.answ1_id) 삭제
+                                    else if prob_kind == 'P'
+                                        a(href="/delete_answer2/" + obj.answ2_id) 삭제
+                                    else 
+                                        a(href="/delete_answer3/"+obj.answ3_id) 삭제

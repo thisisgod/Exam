@@ -12,8 +12,7 @@ block content
             }
     script.
         var idx = #{idx};
-        var id = new Array(#{id});
-        var i=0;
+        var i=1;
     
     #exam
         if idx==0
@@ -33,7 +32,8 @@ block content
                     tr 
                         td 
                             script.
-                                document.write(i + 1);
+                                document.write(i);
+                                i++
                         td
                             p=obj.title
                         td
@@ -53,9 +53,7 @@ block content
                                 td 
                                     p 응시
                                 td
-                                    script.
-                                        document.write("<a href=\"/prob/"+ id[i] + "\"> 문제</a>");
-                                        i++
+                                    a(href="/prob/"+obj.exam_id) 문제
                                 td
                                     p 수정
                                 td

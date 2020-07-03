@@ -22,7 +22,7 @@ app.use(session({
         maxAge: 24000 * 60 * 60 // 24hours
     }
 }))
-
+app.use('/imgs',express.static('imgs'))
 //-------------------------------------------------
 app.use(routes.home, userRouter);
 

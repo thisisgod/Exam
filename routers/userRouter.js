@@ -2,6 +2,7 @@ import express from "express";
 import db_config from "../config/db";
 import multer from "multer"
 import fs from "fs"
+import path from "path"
 
 var storage = multer.diskStorage({
     destination: function(req,file,cb){
@@ -65,16 +66,9 @@ userRouter.get('/exam',function(req,res,next){
         if(err)console.log('query is not excuted. select fail...\n'+err);
         else {
             var idx = rows.length;
-            var id = new Array(idx);
-            for(var i=0;i<idx;i++){
-                id[i] = rows[i].exam_id;
-            }
-            if(idx==1)id[1] = 2
-            console.log(id)
             res.render('exam',{
                 list : rows,
-                idx : idx,
-                id : id
+                idx : idx
             });
         }
     })
@@ -113,15 +107,10 @@ userRouter.get('/prob/:exam_id',function(req,res,next){
         if(err)res.send(500,err);
         else{
             var idx = rows.length;
-            var id = new Array(idx);
-            for(var i=0;i<idx;i++){
-                id[i] = rows[i].prob_id;
-            }
-            if(idx==1)id[1]=1;
+            
             res.render('prob',{
                 list : rows,
                 idx : idx,
-                id : id,
                 exam_id : req.params.exam_id
             });
         }
@@ -240,7 +229,7 @@ userRouter.post('/create_answer/:prob_id',upload1.single('file'),function(req,re
 
     var body = req.body;
     var img_src
-    if(req.body.prob_kind=='P')img_src = 'imgs/exam'+req.body.exam_id+'/ans/ans'+req.body.answer_cnt+'.'+req.file.mimetype.split('/')[1]
+    if(req.body.prob_kind=='P')img_src = '/imgs/exam'+req.body.exam_id+'/ans/ans'+req.body.answer_cnt+'.'+req.file.mimetype.split('/')[1]
     var values
     if(req.body.prob_kind=='P') values = [[req.params.prob_id, img_src, body.rgst_id, body.rgst_id]];
     else values = [[req.params.prob_id, body.answer_value, body.rgst_id, body.rgst_id]];
@@ -255,4 +244,42 @@ userRouter.post('/create_answer/:prob_id',upload1.single('file'),function(req,re
     });
 })
 
+userRouter.get('/delete_answer1/:answ1_id',function(req,res,next){
+    var sql = "delete from answer1 where answ1_id = "+req.params.answ1_id
+    conn.query(sql,function(err){
+        if(err)res.send(500,err)
+        else{
+            res.redirect('/answer/'+req.params.answ1_id)
+        }
+    })
+})
+
+userRouter.get('/delete_answer2/:answ2_id',function(req,res,next){
+    var sql = "select answ_value from answer2 where answ2_id = " + req.params.answ2_id
+    conn.query(sql,function(err,rows,field){
+        if(err)res.send(500,err)
+        else{
+            var img_src = '.'+rows[0].answ_value
+            sql = "delete from answer2 where answ2_id = "+req.params.answ2_id
+            conn.query(sql,function(err){
+                if(err)res.send(500,err)
+                else{
+                    fs.existsSync(img_src)&&fs.unlinkSync(img_src)
+                    // 파일 존재 체크하고 파일 존재하면 파일 삭제
+                    res.redirect('/answer/'+req.params.answ2_id)
+                }
+            })
+        }
+    })
+})
+
+userRouter.get('/delete_answer3/:answ3_id',function(req,res,next){
+    var sql = "delete from answer3 where answ3_id = "+req.params.answ3_id
+    conn.query(sql,function(err, result){
+        if(err)res.send(500,err)
+        else{
+            res.redirect('/answer/'+req.params.answ3_id)
+        }
+    })
+})
 export default userRouter;

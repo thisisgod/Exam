@@ -9,13 +9,8 @@ header.header
             li.nav-item
                 a(href="/exam") Exam
             li.nav-item
-                script.
-                    document.write("<a href=\"/prob/"+ #{exam_id} + "\"> Prob</a>");
-            
+                a(href="/prob/"+exam_id) Prob            
             li.nav-item
-                script.
-                    document.write("<a href=\"/answer/"+ #{prob_id} + "\"> Answer</a>");
-
+                a(href="/answer/"+prob_id) Answer
             li.nav-item
-                script.
-                    document.write("<a href=\"/create_answer/"+ #{prob_id} + "\"> Create_Ans</a>");
+                a(href="/create_answer/"+prob_id) Create_Ans
