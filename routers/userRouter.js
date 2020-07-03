@@ -245,28 +245,36 @@ userRouter.post('/create_answer/:prob_id',upload1.single('file'),function(req,re
 })
 
 userRouter.get('/delete_answer1/:answ1_id',function(req,res,next){
-    var sql = "delete from answer1 where answ1_id = "+req.params.answ1_id
-    conn.query(sql,function(err){
+    var sql = "select prob_id from answer1 where answ1_id = " + req.params.answ1_id
+    conn.query(sql,function(err,rows,field){
         if(err)res.send(500,err)
         else{
-            res.redirect('/answer/'+req.params.answ1_id)
+            var prob_id = rows[0].prob_id
+            sql = "delete from answer1 where answ1_id = "+req.params.answ1_id
+            conn.query(sql,function(err){
+                if(err)res.send(500,err)
+                else{
+                    res.redirect('/answer/'+prob_id)
+                }
+            })
         }
     })
 })
 
 userRouter.get('/delete_answer2/:answ2_id',function(req,res,next){
-    var sql = "select answ_value from answer2 where answ2_id = " + req.params.answ2_id
+    var sql = "select answ_value, prob_id from answer2 where answ2_id = " + req.params.answ2_id
     conn.query(sql,function(err,rows,field){
         if(err)res.send(500,err)
         else{
             var img_src = '.'+rows[0].answ_value
+            var prob_id = rows[0].prob_id
             sql = "delete from answer2 where answ2_id = "+req.params.answ2_id
             conn.query(sql,function(err){
                 if(err)res.send(500,err)
                 else{
                     fs.existsSync(img_src)&&fs.unlinkSync(img_src)
                     // 파일 존재 체크하고 파일 존재하면 파일 삭제
-                    res.redirect('/answer/'+req.params.answ2_id)
+                    res.redirect('/answer/'+prob_id)
                 }
             })
         }
@@ -274,11 +282,18 @@ userRouter.get('/delete_answer2/:answ2_id',function(req,res,next){
 })
 
 userRouter.get('/delete_answer3/:answ3_id',function(req,res,next){
-    var sql = "delete from answer3 where answ3_id = "+req.params.answ3_id
-    conn.query(sql,function(err, result){
+    var sql = "select prob_id from answer3 where answ3_id = " + req.params.answ3_id
+    conn.query(sql,function(err,rows,field){
         if(err)res.send(500,err)
         else{
-            res.redirect('/answer/'+req.params.answ3_id)
+            var prob_id = rows[0].prob_id
+            sql = "delete from answer3 where answ3_id = "+req.params.answ3_id
+            conn.query(sql,function(err){
+                if(err)res.send(500,err)
+                else{
+                    res.redirect('/answer/'+prob_id)
+                }
+            })
         }
     })
 })
