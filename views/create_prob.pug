@@ -20,31 +20,31 @@ block content
         form(action="/create_prob/"+exam_id, method="post", enctype="multipart/form-data")
             input(type="hidden", value=prob_cnt, name="prob_cnt")
       
-                table
-                    tr
-                        td 문제 이름
-                        td
-                            input(type="text", name="title")
-                    tr
-                        td 문제 배점
-                        td
-                            input(type="text", name="num")
-                    tr
-                        td 문제 그림
+            table
+                tr
+                    td 문제 이름
+                    td
+                        input(type="text", name="title")
+                tr
+                    td 문제 배점
+                    td
+                        input(type="text", name="num")
+                tr
+                    td 문제 그림
                         td
                             input(type="file", name="file")
-                    tr
-                        td 문제 종류
-                        td
-                            select(name="kind")
-                                option(value="N") 일반 객관식
-                                option(value="P") 그림 객관식
-                                option(value="S") 주관식
-                    tr
-                        td 제작자
-                        td
-                            input(type="text", name="rgst_id", value="1")
-                    tr
-                        td
-                        td
-                            input(type="submit", value="생성")
+                tr
+                    td 문제 종류
+                    td
+                        select(name="kind")
+                            option(value="N") 일반 객관식
+                            option(value="P") 그림 객관식
+                            option(value="S") 주관식
+                tr
+                    td 제작자
+                    td
+                        input(type="text", name="rgst_id", value="1")
+                tr
+                    td
+                    td
+                        input(type="submit", value="생성")

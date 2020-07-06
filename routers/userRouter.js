@@ -147,7 +147,7 @@ userRouter.post('/create_prob/:exam_id',upload.single('file'),function(req,res,n
     });
 });
 
-userRouter.get('/answer/:prob_id',function(req,res,next){
+userRouter.get('/answer/:prob_id',function(req,res){
     var sql = "select * from problem where prob_id = "+req.params.prob_id
     var exam_id
     var prob_kind
@@ -171,15 +171,9 @@ userRouter.get('/answer/:prob_id',function(req,res,next){
                 if(err)res.send(500,err)
                 else{
                     var idx = rows.length;
-                    var id = new Array(idx);
-                    for(var i=0;i<idx;i++){
-                        id[i] = rows[i].answ1_id;
-                    }
-                    if(idx==1)id[1]=1;
                     res.render('answer',{
                         list : rows,
                         idx : idx,
-                        id : id,
                         prob_id : req.params.prob_id,
                         exam_id : exam_id,
                         prob_kind : prob_kind
@@ -244,7 +238,7 @@ userRouter.post('/create_answer/:prob_id',upload1.single('file'),function(req,re
     });
 })
 
-userRouter.get('/delete_answer1/:answ1_id',function(req,res,next){
+userRouter.get('/delete_answer1/:answ1_id',function(req,res){
     var sql = "select prob_id from answer1 where answ1_id = " + req.params.answ1_id
     conn.query(sql,function(err,rows,field){
         if(err)res.send(500,err)
@@ -261,7 +255,7 @@ userRouter.get('/delete_answer1/:answ1_id',function(req,res,next){
     })
 })
 
-userRouter.get('/delete_answer2/:answ2_id',function(req,res,next){
+userRouter.get('/delete_answer2/:answ2_id',function(req,res){
     var sql = "select answ_value, prob_id from answer2 where answ2_id = " + req.params.answ2_id
     conn.query(sql,function(err,rows,field){
         if(err)res.send(500,err)
@@ -281,7 +275,7 @@ userRouter.get('/delete_answer2/:answ2_id',function(req,res,next){
     })
 })
 
-userRouter.get('/delete_answer3/:answ3_id',function(req,res,next){
+userRouter.get('/delete_answer3/:answ3_id',function(req,res){
     var sql = "select prob_id from answer3 where answ3_id = " + req.params.answ3_id
     conn.query(sql,function(err,rows,field){
         if(err)res.send(500,err)
@@ -297,4 +291,46 @@ userRouter.get('/delete_answer3/:answ3_id',function(req,res,next){
         }
     })
 })
+
+userRouter.get('/delete_prob/:prob_id',function(req,res){
+    var sql = "select exam id,prob_kind from problem where prob_id = "+req.params.prob_id
+    conn.query(sql,function(err,rows,field){
+        if(err)res.send(500,err)
+        else{
+            var prob_kind = rows[0].prob_kind
+            var exam_id = rows[0].exam_id
+            if(prob_kind=='P'){
+                sql = "select answ_value from answer2 where prob_id = "+req.params._prob_id                
+                conn.query(sql,function(err,rows,field){
+                    if(err)res.send(500,err)
+                    else{
+                        for(var attr in rows){
+                            var img_src = '.' + attr.answer_value
+                            fs.existsSync(img_src)&&fs.unlinkSync(img_src)
+                            sql = "delete from answer2 where prob_id = "+req.params.prob_id
+                        }
+                    }
+                })
+                
+            }
+            else if(prob_kind=='N'){
+                sql = "delete from answer1 where prob_id = "+req.params.prob_id
+            }
+            else sql = "delete from answer3 where prob_id = "+req.params.prob_id
+            conn.query(sql,function(err){
+                if(err)res.send(500,err)
+                else{
+                    res.redirect('/prob/'+exam_id);
+                }
+            })
+        }
+    })
+})
+
+
+
+
+
+
+
 export default userRouter;
