@@ -32,7 +32,10 @@ block content
                                 document.write(i);
                                 i++
                         td
-                            img(src = obj.answ_value, width="200", height="200")
+                            if prob_kind == 'P'
+                                img(src = obj.answ_value, width="200", height="200")
+                            else 
+                                p=obj.answ_value
                         td
                             p=obj.rgstr_id
                         td

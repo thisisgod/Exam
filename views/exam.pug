@@ -51,10 +51,10 @@ block content
                         td
                             table
                                 td 
-                                    p 응시
+                                    a(href="/take_exam/"+obj.exam_id) 응시
                                 td
                                     a(href="/prob/"+obj.exam_id) 문제
                                 td
                                     p 수정
                                 td
-                                    p 삭제
+                                    a(href="/delete_exam/"+obj.exam_id) 삭제

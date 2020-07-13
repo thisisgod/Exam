@@ -1,0 +1,18 @@
+extends ./layouts/ans_main
+
+block content
+    style.
+        th,td {
+                border:1px solid darkslategrey;
+                padding:auto;
+                margin:auto;
+                margin-top:50px;
+                width:400px;
+                text-align:center;
+            }
+
+    #exam
+        each obj in prob
+            img(src = obj.img,width="200",height="200")
+            each ans in prob.ans
+                p=ans.id + ans.val

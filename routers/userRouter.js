@@ -2,7 +2,6 @@ import express from "express";
 import db_config from "../config/db";
 import multer from "multer"
 import fs from "fs"
-import path from "path"
 
 var storage = multer.diskStorage({
     destination: function(req,file,cb){
@@ -133,7 +132,7 @@ userRouter.get('/create_prob/:exam_id',function(req,res,next){
 userRouter.post('/create_prob/:exam_id',upload.single('file'),function(req,res,next){
     var sql = "insert into problem (exam_id, prob_kind, prob_title, prob_num, prob_img, rgstr_id, updtr_id) values ?";
     var body = req.body;
-    var img_src = 'imgs/exam'+req.params.exam_id+'/prob/prob'+req.body.prob_cnt+'.'+req.file.mimetype.split('/')[1]
+    var img_src = '/imgs/exam'+req.params.exam_id+'/prob/prob'+req.body.prob_cnt+'.'+req.file.mimetype.split('/')[1]
     console.log(body)
     var values = [[req.params.exam_id, body.kind, body.title, body.num, img_src, body.rgst_id, body.rgst_id]];
     conn.query(sql, [values], function(err, result){
@@ -293,43 +292,165 @@ userRouter.get('/delete_answer3/:answ3_id',function(req,res){
 })
 
 userRouter.get('/delete_prob/:prob_id',function(req,res){
-    var sql = "select exam id,prob_kind from problem where prob_id = "+req.params.prob_id
+    var sql = "select exam_id,prob_kind, prob_img from problem where prob_id = "+req.params.prob_id
     conn.query(sql,function(err,rows,field){
         if(err)res.send(500,err)
         else{
+            var img_src = '.' + rows[0].prob_img
+            fs.existsSync(img_src)&&fs.unlinkSync(img_src)
             var prob_kind = rows[0].prob_kind
             var exam_id = rows[0].exam_id
-            if(prob_kind=='P'){
-                sql = "select answ_value from answer2 where prob_id = "+req.params._prob_id                
-                conn.query(sql,function(err,rows,field){
-                    if(err)res.send(500,err)
-                    else{
-                        for(var attr in rows){
-                            var img_src = '.' + attr.answer_value
-                            fs.existsSync(img_src)&&fs.unlinkSync(img_src)
-                            sql = "delete from answer2 where prob_id = "+req.params.prob_id
-                        }
-                    }
-                })
-                
-            }
-            else if(prob_kind=='N'){
-                sql = "delete from answer1 where prob_id = "+req.params.prob_id
-            }
-            else sql = "delete from answer3 where prob_id = "+req.params.prob_id
+
+            sql = "delete from problem where prob_id = "+req.params.prob_id
             conn.query(sql,function(err){
                 if(err)res.send(500,err)
                 else{
-                    res.redirect('/prob/'+exam_id);
+                    if(prob_kind=='P'){
+                        sql = "select answ_value from answer2 where prob_id = "+req.params.prob_id                
+                        conn.query(sql,function(err,rows,field){
+                            if(err)res.send(500,err)
+                            else{
+                                console.log(rows)
+                                for(var attr of rows){
+                                    console.log(attr)
+                                    var img_src = '.' + attr.answ_value
+                                    console.log(img_src)
+                                    fs.existsSync(img_src)&&fs.unlinkSync(img_src)
+                                }
+                                sql = "delete from answer2 where prob_id = "+req.params.prob_id
+                                conn.query(sql,function(err){
+                                    if(err)res.send(500,err)
+                                    else{
+                                        console.log('delete complete')
+                                        res.redirect('/prob/'+exam_id);
+                                    }
+                                })
+                            }
+                        })
+                        
+                    }
+                    else if(prob_kind=='N'){
+                        sql = "delete from answer1 where prob_id = "+req.params.prob_id
+                        conn.query(sql,function(err){
+                            if(err)res.send(500,err)
+                            else{
+                                console.log('delete complete')
+                                res.redirect('/prob/'+exam_id);
+                            }
+                        })
+                    }
+                    else {
+                        sql = "delete from answer3 where prob_id = "+req.params.prob_id
+                        conn.query(sql,function(err){
+                            if(err)res.send(500,err)
+                            else{
+                                console.log('delete complete')
+                                res.redirect('/prob/'+exam_id);
+                            }
+                        })
+                    }
                 }
             })
         }
     })
 })
 
+function deleteFolderRecursive(path){
+    if(fs.existsSync(path)){
+        fs.readdirSync(path).forEach(function(file,index){
+            var curPath = path + '/' + file
+            if(fs.lstatSync(curPath).isDirectory()){
+                deleteFolderRecursive(curPath)
+            }
+            else{
+                fs.unlinkSync(curPath)
+            }
+        })
+        fs.rmdirSync(path)
+    }
+}
 
+userRouter.get('/delete_exam/:exam_id',function(req,res){
+    var exam_id = req.params.exam_id
+    var src = './imgs/exam'+exam_id;
+    console.log(src)
+    deleteFolderRecursive(src)
+    var sql = "select prob_id, prob_kind, prob_img from problem where exam_id = "+ exam_id
+    conn.query(sql,function(err,rows,field){
+        if(err)res.send(500,err)
+        else{
+            sql = "delete from exam where exam_id = " + exam_id
+            conn.query(sql,function(err){
+                if(err)res.send(500,err)
+                else {
+                    sql = "delete from problem where exam_id = " + exam_id
+                    conn.query(sql,function(err){
+                        if(err)res.send(500,err)
+                        else{
+                            console.log(rows)
+                            for(var obj of rows){
+                                console.log(obj)
+                                if(obj.prob_kind == 'P'){
+                                    sql = "delete from answer2 where prob_id = "+obj.prob_id
+                                    conn.query(sql,function(err){
+                                        if(err)res.send(500,err)
+                                    })
+                                }
+                                else if(obj.prob_kind == 'N'){
+                                    sql = "delete from answer1 where prob_id = "+obj.prob_id
+                                    conn.query(sql,function(err){
+                                        if(err)res.send(500,err)
+                                    })
+                                }
+                                else {
+                                    sql = "delete from answer3 where prob_id = "+obj.prob_id
+                                    conn.query(sql,function(err){
+                                        if(err)res.send(500,err)
+                                    })
+                                }
+                            }
+                        }
+                    })
+                }
+            })
+        }
+    })
+    res.redirect('/exam')
+})
 
-
+userRouter.get('/take_exam/:exam_id',function(req,res){
+    var sql = "select prob_id, prob_img, prob_kind from problem where exam_id = " + req.params.exam_id
+    var prob = new Object()
+    conn.query(sql,function(err,rows,field){
+        if(err)res.send(500,err)
+        else{
+            var len = rows.length
+            console.log(rows)
+            for(var i=0;i<len;i++){
+                prob[i].img=rows[i].prob_img
+                sql = "select answer_value from answer"
+                if(prob_kind == 'N')sql += "1"
+                else if(prob_kind=='P')sql+="2"
+                else sql+="3"
+                sql+=" where prob_id = "+rows[i].prob_id
+                conn.query(sql,function(err,rows,field){
+                    if(err)res.send(500,err)
+                    else{
+                        console.log(rows)
+                        var alen = rows.length
+                        for(var j=0;j<alen;j++){
+                            prob[i].ans[j].val = rows[j].answ_value
+                            prob[i].ans[j].id = j+1
+                        }
+                        res.sender('take_exam',{
+                            prob : prob
+                        })
+                    }
+                })
+            }
+        }
+    })
+})
 
 
 

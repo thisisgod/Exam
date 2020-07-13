@@ -35,7 +35,7 @@ block content
                                 document.write(i)
                                 i++
                         td
-                            p=obj.prob_title
+                            img(src = obj.prob_img,width="200",height="200")
                         td
                             p=obj.prob_kind
                         td
@@ -55,4 +55,4 @@ block content
                                 td
                                     a(href="/answer/"+obj.prob_id) 답안
                                 td
-                                    p 삭제
+                                    a(href="/delete_prob/"+obj.prob_id) 삭제
