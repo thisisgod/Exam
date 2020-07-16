@@ -1,0 +1,30 @@
+extends ./layouts/ans_main
+
+block content
+    style.
+        th,td {
+                border:1px solid darkslategrey;
+                padding:auto;
+                margin:auto;
+                margin-top:50px;
+                width:400px;
+                text-align:center;
+            }
+    script.
+        var i=1;
+
+    #prob
+        form(action='/cor_exam/'+id, method='post') 
+            table  
+                th 문제 번호
+                th 답
+                each idx in idxs
+                    tr 
+                        td
+                            p=idx
+                        td
+                            input(type="text",name='ans['+ idx +']')
+                tr
+                    td
+                    td
+                        input(type='submit', value='제출')

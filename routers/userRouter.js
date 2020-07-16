@@ -475,11 +475,62 @@ userRouter.get('/take_exam/:exam_id', async function(req,res){
     })
 })
 
-userRouter.post('/take_exam/:examid',function(req,res){
-    for(var i of req.body.exam){
-        console.log(i)
-    }
+userRouter.post('/take_exam/:exam_id',function(req,res){
+    var exam_id = req.params.exam_id
+    var sql = "select prob_num from problem where exam_id = "+exam_id
+    conn.query(sql,function(err,rows){
+        if(err)res.send(500,err)
+        else{
+            var scoreArr = rows
+            sql = "select answer from cor_exam where exam_id = "+exam_id
+            conn.query(sql,function(err,rows){
+                if(err)res.send(500,err)
+                else{
+                    var j = 0
+                    var score=0
+                    for(var i of req.body.exam){
+                        console.log(i)
+                        console.log(rows[j].answer)
+                        console.log(scoreArr[j].prob_num)
+                        if(i == rows[j].answer)score+=scoreArr[j].prob_num
+                        j++
+                    }
+                    res.render('result_exam',{
+                        score : score
+                    })
+                }
+            })
+        }
+    })
 })
 
+userRouter.get('/cor_exam/:exam_id',function(req,res){
+    var sql = "select * from problem where exam_id = "+req.params.exam_id
+    conn.query(sql,function(err,rows){
+        if(err)res.send(500,err)
+        else{
+            var idx = new Array()
+            for(var i = 0;i<rows.length;i++){
+                idx.push(i+1)
+            }
+            res.render('cor_exam',{
+                idxs : idx,
+                id : req.params.exam_id
+            })
+        }
+    })
+})
+
+userRouter.post('/cor_exam/:exam_id',function(req,res){
+    var j=1
+    for(var i of req.body.ans){
+        var sql = "insert into cor_exam (exam_id, prob_num, answer) values ?";
+        var values = [[req.params.exam_id, j++, i]];
+        conn.query(sql, [values], function(err, result){
+            if(err)console.log("insert errer"+err);
+        });
+    }
+    res.redirect('/exam')
+})
 
 export default userRouter;

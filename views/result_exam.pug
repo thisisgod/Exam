@@ -1,0 +1,24 @@
+extends ./layouts/ans_main
+
+block content
+    style.
+        th,td {
+                border:1px solid darkslategrey;
+                padding:auto;
+                margin:auto;
+                margin-top:50px;
+                width:400px;
+                text-align:center;
+            }
+        #exam{
+            padding:100px;
+            margin:auto;
+            font-size:50px;
+        }
+    script.
+        var i = 1;
+
+    #exam
+        p="당신의 시험 점수는 "+score+"입니다."
+        br
+        a(href="/exam") 돌아가기
