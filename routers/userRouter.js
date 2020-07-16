@@ -418,40 +418,68 @@ userRouter.get('/delete_exam/:exam_id',function(req,res){
     res.redirect('/exam')
 })
 
-userRouter.get('/take_exam/:exam_id',function(req,res){
-    var sql = "select prob_id, prob_img, prob_kind from problem where exam_id = " + req.params.exam_id
-    var prob = new Object()
-    conn.query(sql,function(err,rows,field){
-        if(err)res.send(500,err)
-        else{
-            var len = rows.length
-            console.log(rows)
-            for(var i=0;i<len;i++){
-                prob[i].img=rows[i].prob_img
-                sql = "select answer_value from answer"
-                if(prob_kind == 'N')sql += "1"
-                else if(prob_kind=='P')sql+="2"
-                else sql+="3"
-                sql+=" where prob_id = "+rows[i].prob_id
-                conn.query(sql,function(err,rows,field){
-                    if(err)res.send(500,err)
-                    else{
-                        console.log(rows)
-                        var alen = rows.length
-                        for(var j=0;j<alen;j++){
-                            prob[i].ans[j].val = rows[j].answ_value
-                            prob[i].ans[j].id = j+1
-                        }
-                        res.sender('take_exam',{
-                            prob : prob
+async function GetExam(sql){
+    let promise1 = new Promise((resolve,reject)=>{
+        conn.query(sql,async function(err,rows,field){
+            if(err)res.send(500,err)
+            else{
+                let prob = new Array()
+                var len = rows.length
+                for(var i=0;i<len;i++){
+                    var prob_kind = rows[i].prob_kind
+                    sql = "select answ_value from answer"
+                    if(prob_kind == 'N')sql += "1"
+                    else if(prob_kind=='P')sql+="2"
+                    else sql+="3"
+                    sql+=" where prob_id = "+rows[i].prob_id
+                    let promise2 = new Promise((resolve, reject)=>{
+                        conn.query(sql,function(err,rows,field){
+                            if(err)res.send(500,err)
+                            else{
+                                var prob_inf = new Object()
+                                prob_inf.ans = new Array()
+                                var alen = rows.length
+                                for(var j=0;j<alen;j++){
+                                    var ans_inf = new Object()
+                                    ans_inf.val = rows[j].answ_value
+                                    ans_inf.id = j+1
+                                    prob_inf.ans.push(ans_inf)
+                                }
+                                resolve(prob_inf)
+                            }
                         })
-                    }
-                })
+                    })
+                    let prob_inf1 = await promise2
+                    prob_inf1.img= rows[i].prob_img
+                    prob_inf1.prob_kind = rows[i].prob_kind
+                    prob_inf1.id = i+1
+                    console.log(prob_inf1.ans)
+                    prob.push(prob_inf1)
+                }
+                resolve(prob)
             }
-        }
+        })
+    })
+    let result1 = await promise1
+    return Promise.resolve(result1)
+}
+
+userRouter.get('/take_exam/:exam_id', async function(req,res){
+    var sql = "select prob_id, prob_img, prob_kind from problem where exam_id = " + req.params.exam_id
+    console.log("check")
+    let prob = await GetExam(sql)
+    console.log("check1")
+    await res.render('take_exam',{
+        prob:prob,
+        id : req.params.exam_id
     })
 })
 
+userRouter.post('/take_exam/:examid',function(req,res){
+    for(var i of req.body.exam){
+        console.log(i)
+    }
+})
 
 
 export default userRouter;

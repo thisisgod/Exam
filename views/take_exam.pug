@@ -10,9 +10,33 @@ block content
                 width:400px;
                 text-align:center;
             }
+        #exam{
+            padding:100px;
+            margin:auto;
+            font-size:50px;
+        }
+    script.
+        var i = 1;
 
     #exam
-        each obj in prob
-            img(src = obj.img,width="200",height="200")
-            each ans in prob.ans
-                p=ans.id + ans.val
+        form(action="/take_exam/"+id method='post')
+            each obj in prob
+                script.
+                    document.write(i++)
+                    document.write("  ")
+                img(src = obj.img,width="300",height="300")
+                br
+                br
+                if obj.prob_kind == 'S'
+                    input(type='text', name= 'exam['+obj.id+']')
+                else 
+                    each ans in obj.ans
+                        if obj.prob_kind == 'N'
+                            input(type='radio', name='exam['+obj.id+']',value=ans.id)
+                            text=ans.val
+                        else
+                            input(type='radio',name='exam['+obj.id+']',value=ans.id)
+                            img(src = ans.val,width='150',height='150')
+                br
+                br
+            input(type='submit', value="제출")
