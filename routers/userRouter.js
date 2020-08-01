@@ -526,34 +526,33 @@ var storage3 = multer.diskStorage({
         timestamp =+ new Date()
         console.log(timestamp)
         cb(null,'ans_' + timestamp+'.xlsx')
-        //upload_exam()
     }
 });
 
 var upload3 = multer({storage: storage3})
 
-userRouter.post('/cor_exam/:exam_id', upload3.single('file'),async function(req,res){
+userRouter.post('/cor_exam/:exam_id', upload3.single('file'), async function(req,res){
     var dir = 'excel/ans_'+timestamp+'.xlsx'
     let workbook = xlsx.readFile(dir)
     let worksheet = workbook.Sheets["Sheet1"]
     let ans_json = xlsx.utils.sheet_to_json(worksheet)
 
-    var sql = "insert into cor_exam (exam_id, prob_num, answer) valuse ?"
-    let promise_insert_cor_exam = new Promise((resolve, reject)=>{
-        conn.query(sql, [values], function(err){
-            if(err)res.send(err)
-            else{
-                console.log("insert success!")
-                resolve(1)
-            }
-        })
-    })
+    var sql = "insert into cor_exam (exam_id, prob_num, answer) values ?"
     for(var i=0;i<ans_json.length;i++){
-        var values = [[req.params.exam_id, ans_json[i]["문제번호"],ans_json[i]["답안"]]]
-        let insert_cor_exam = promise_insert_cor_exam
+        var values = [[req.params.exam_id, ans_json[i]["문제번호"],ans_json[i]["정답"]]]
+        let promise_insert_cor_exam = new Promise((resolve, reject)=>{
+            conn.query(sql, [values], function(err){
+                if(err)res.send(err)
+                else{
+                    console.log("insert success!")
+                    resolve(1)
+                }
+            })
+        })
+        let insert_cor_exam = await promise_insert_cor_exam
     }
 
-    res.redirect('/exam')
+    await res.redirect('/exam')
 })
 
 async function upload_exam(){
@@ -599,15 +598,17 @@ async function insert_problem_func(prob_json, exam_id, res){
                             if(err)res.send(500,err)
                             else{
                                 var prob_id = rows[0].prob_id
-                                for(var j=1;j<=5;j++){
-                                    var sql2 = "insert into answer1 (prob_id, answ_value) values ?"
-                                    values = [[prob_id, prob["정답"+j]]]
-                                    conn.query(sql2,[values],function(err,result){
-                                        if(err)res.send(500,err)
-                                        else{
-                                        console.log("insert success!")  
-                                        }
-                                    })
+                                if(prob_kind=='N'){
+                                    for(var j=1;j<=5;j++){
+                                        var sql2 = "insert into answer1 (prob_id, answ_value) values ?"
+                                        values = [[prob_id, prob["정답"+j]]]
+                                        conn.query(sql2,[values],function(err,result){
+                                            if(err)res.send(500,err)
+                                            else{
+                                            console.log("insert success!")  
+                                            }
+                                        })
+                                    }
                                 }
                                 resolve(1)
                             }
@@ -628,6 +629,7 @@ userRouter.post('/upload_exam', upload2.single('file'), async function(req,res){
     let workbook = xlsx.readFile(dir)
     let worksheet = workbook.Sheets["Sheet1"]
     let prob_json = xlsx.utils.sheet_to_json(worksheet)
+
     /*
      *  exam 삽입
      */
@@ -672,6 +674,7 @@ userRouter.post('/upload_exam', upload2.single('file'), async function(req,res){
         })
     })
     let exam_id = await promise_find_exam_id
+
     /*
      *  problem 삽입
      */

@@ -14,7 +14,7 @@ block content
         var i=1;
 
     #prob
-        form(action='/cor_exam/'+id, method='post') 
+        form(action='/cor_exam/'+id, method='post', enctype="multipart/form-data") 
             table  
                 th 답안 파일
                 th
@@ -22,7 +22,7 @@ block content
                     td
                         p 답안
                     td
-                        input(type="file",name='file')
+                        input(type="file",name="file")
                 tr
                     td
                     td
