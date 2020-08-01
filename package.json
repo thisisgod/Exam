@@ -2,8 +2,10 @@
   "name": "webproject",
   "version": "1.0.0",
   "description": "WebProject",
-  "main": "index.js",
+  "main": "init.js",
   "scripts": {
+    "build": "webpack -w",
+    "devserver": "webpack-dev-server --open --progress",
     "start": "babel-node init.js --delay 2"
   },
   "repository": {
@@ -20,13 +22,21 @@
   },
   "homepage": "https://github.com/thisisgod/WebProject#readme",
   "devDependencies": {
+    "@babel/cli": "^7.10.5",
     "@babel/core": "^7.10.2",
     "@babel/node": "^7.10.1",
+    "@babel/plugin-proposal-class-properties": "^7.10.4",
     "@babel/preset-env": "^7.10.2",
+    "babel-loader": "^8.1.0",
     "install": "^0.12.2",
-    "npm": "^6.13.1"
+    "npm": "^6.13.1",
+    "webpack": "^4.43.0",
+    "webpack-cli": "^3.3.12",
+    "webpack-dev-server": "^3.11.0",
+    "webpack-node-externals": "^2.5.0"
   },
   "dependencies": {
+    "@babel/polyfill": "^7.10.4",
     "cookie-parser": "^1.4.5",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
@@ -37,6 +47,7 @@
     "multer": "^1.4.2",
     "mysql": "^2.18.1",
     "path": "^0.12.7",
-    "pug": "^3.0.0"
+    "pug": "^3.0.0",
+    "xlsx": "^0.16.4"
   }
 }

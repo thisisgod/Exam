@@ -20,10 +20,6 @@ block content
             table  
                 th 답안 번호
                 th 답안
-                th 제작자
-                th 제작일자
-                th 수정자
-                th 수정일자 
                 th
                 each obj in list
                     tr 
@@ -36,14 +32,6 @@ block content
                                 img(src = obj.answ_value, width="200", height="200")
                             else 
                                 p=obj.answ_value
-                        td
-                            p=obj.rgstr_id
-                        td
-                            p=obj.rgst_dt
-                        td
-                            p=obj.updtr_id
-                        td
-                            p=obj.updt_dt
                         td
                             table
                                 td

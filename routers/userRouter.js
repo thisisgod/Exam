@@ -2,6 +2,8 @@ import express from "express";
 import db_config from "../config/db";
 import multer from "multer"
 import fs from "fs"
+import xlsx from "xlsx"
+import { resolve } from "path";
 
 var storage = multer.diskStorage({
     destination: function(req,file,cb){
@@ -101,7 +103,7 @@ userRouter.post('/create_exam',function(req,res,next){
 }); 
 
 userRouter.get('/prob/:exam_id',function(req,res,next){
-    var sql = "select * from problem where exam_id = "+req.params.exam_id;
+    var sql = "select * from problem where exam_id = "+req.params.exam_id + " order by prob_no";
     conn.query(sql,function(err,rows,fields){
         if(err)res.send(500,err);
         else{
@@ -130,11 +132,11 @@ userRouter.get('/create_prob/:exam_id',function(req,res,next){
 });
 
 userRouter.post('/create_prob/:exam_id',upload.single('file'),function(req,res,next){
-    var sql = "insert into problem (exam_id, prob_kind, prob_title, prob_num, prob_img, rgstr_id, updtr_id) values ?";
+    var sql = "insert into problem (exam_id, prob_no, isImg, prob_kind, prob_title, prob_score, prob_img) values ?";
     var body = req.body;
     var img_src = '/imgs/exam'+req.params.exam_id+'/prob/prob'+req.body.prob_cnt+'.'+req.file.mimetype.split('/')[1]
     console.log(body)
-    var values = [[req.params.exam_id, body.kind, body.title, body.num, img_src, body.rgst_id, body.rgst_id]];
+    var values = [[req.params.exam_id, body.prob_no, "Y", body.kind, body.title, body.prob_score, img_src]];
     conn.query(sql, [values], function(err, result){
         if(err)console.log("insert errer"+err);
         else  {
@@ -218,14 +220,14 @@ userRouter.post('/create_answer/:prob_id',upload1.single('file'),function(req,re
     if(req.body.prob_kind=='N')sql+=1;
     else if(req.body.prob_kind=='P')sql+=2;
     else sql+=3;
-    sql += " (prob_id, answ_value, rgstr_id, updtr_id) values ?";
+    sql += " (prob_id, answ_value) values ?";
 
     var body = req.body;
     var img_src
     if(req.body.prob_kind=='P')img_src = '/imgs/exam'+req.body.exam_id+'/ans/ans'+req.body.answer_cnt+'.'+req.file.mimetype.split('/')[1]
     var values
-    if(req.body.prob_kind=='P') values = [[req.params.prob_id, img_src, body.rgst_id, body.rgst_id]];
-    else values = [[req.params.prob_id, body.answer_value, body.rgst_id, body.rgst_id]];
+    if(req.body.prob_kind=='P') values = [[req.params.prob_id, img_src]];
+    else values = [[req.params.prob_id, body.answer_value]];
     conn.query(sql, [values], function(err, result){
         if(err)console.log("insert errer"+err);
         else  {
@@ -418,7 +420,7 @@ userRouter.get('/delete_exam/:exam_id',function(req,res){
     res.redirect('/exam')
 })
 
-async function GetExam(sql){
+async function GetExam(sql,res){
     let promise1 = new Promise((resolve,reject)=>{
         conn.query(sql,async function(err,rows,field){
             if(err)res.send(500,err)
@@ -453,8 +455,8 @@ async function GetExam(sql){
                     prob_inf1.img= rows[i].prob_img
                     prob_inf1.prob_kind = rows[i].prob_kind
                     prob_inf1.id = i+1
-                    console.log(prob_inf1.ans)
-                    prob.push(prob_inf1)
+                    prob_inf1.prob_no = rows[i].prob_no
+                    if(i!=len-1 && rows[i+1].prob_no == rows[i].prob_no)prob.push(prob_inf1)
                 }
                 resolve(prob)
             }
@@ -465,9 +467,9 @@ async function GetExam(sql){
 }
 
 userRouter.get('/take_exam/:exam_id', async function(req,res){
-    var sql = "select prob_id, prob_img, prob_kind from problem where exam_id = " + req.params.exam_id
+    var sql = "select * from problem where exam_id = " + req.params.exam_id+ " order by prob_no"
     console.log("check")
-    let prob = await GetExam(sql)
+    let prob = await GetExam(sql,res)
     console.log("check1")
     await res.render('take_exam',{
         prob:prob,
@@ -477,7 +479,7 @@ userRouter.get('/take_exam/:exam_id', async function(req,res){
 
 userRouter.post('/take_exam/:exam_id',function(req,res){
     var exam_id = req.params.exam_id
-    var sql = "select prob_num from problem where exam_id = "+exam_id
+    var sql = "select prob_score from problem where exam_id = "+exam_id
     conn.query(sql,function(err,rows){
         if(err)res.send(500,err)
         else{
@@ -489,10 +491,7 @@ userRouter.post('/take_exam/:exam_id',function(req,res){
                     var j = 0
                     var score=0
                     for(var i of req.body.exam){
-                        console.log(i)
-                        console.log(rows[j].answer)
-                        console.log(scoreArr[j].prob_num)
-                        if(i == rows[j].answer)score+=scoreArr[j].prob_num
+                        if(i == rows[j].answer)score+=scoreArr[j].prob_score
                         j++
                     }
                     res.render('result_exam',{
@@ -509,28 +508,179 @@ userRouter.get('/cor_exam/:exam_id',function(req,res){
     conn.query(sql,function(err,rows){
         if(err)res.send(500,err)
         else{
-            var idx = new Array()
-            for(var i = 0;i<rows.length;i++){
-                idx.push(i+1)
-            }
             res.render('cor_exam',{
-                idxs : idx,
                 id : req.params.exam_id
             })
         }
     })
 })
 
-userRouter.post('/cor_exam/:exam_id',function(req,res){
-    var j=1
-    for(var i of req.body.ans){
-        var sql = "insert into cor_exam (exam_id, prob_num, answer) values ?";
-        var values = [[req.params.exam_id, j++, i]];
-        conn.query(sql, [values], function(err, result){
-            if(err)console.log("insert errer"+err);
-        });
+var timestamp
+
+var storage3 = multer.diskStorage({
+    destination: function(req,file,cb){
+        var dir = 'excel/';
+        cb(null, dir)
+    },
+    filename : function(req,file,cb){
+        timestamp =+ new Date()
+        console.log(timestamp)
+        cb(null,'ans_' + timestamp+'.xlsx')
+        //upload_exam()
     }
+});
+
+var upload3 = multer({storage: storage3})
+
+userRouter.post('/cor_exam/:exam_id', upload3.single('file'),async function(req,res){
+    var dir = 'excel/ans_'+timestamp+'.xlsx'
+    let workbook = xlsx.readFile(dir)
+    let worksheet = workbook.Sheets["Sheet1"]
+    let ans_json = xlsx.utils.sheet_to_json(worksheet)
+
+    var sql = "insert into cor_exam (exam_id, prob_num, answer) valuse ?"
+    let promise_insert_cor_exam = new Promise((resolve, reject)=>{
+        conn.query(sql, [values], function(err){
+            if(err)res.send(err)
+            else{
+                console.log("insert success!")
+                resolve(1)
+            }
+        })
+    })
+    for(var i=0;i<ans_json.length;i++){
+        var values = [[req.params.exam_id, ans_json[i]["문제번호"],ans_json[i]["답안"]]]
+        let insert_cor_exam = promise_insert_cor_exam
+    }
+
     res.redirect('/exam')
 })
+
+async function upload_exam(){
+    var dir = 'excel/exam_'+timestamp+'.xlsx'
+    let workbook = xlsx.readFile(dir)
+    let worksheet = workbook.Sheets["Sheet1"]
+    res.json(worksheet)
+    console.log(timestamp)
+}
+
+var storage2 = multer.diskStorage({
+    destination: function(req,file,cb){
+        var dir = 'excel/';
+        cb(null, dir)
+    },
+    filename : function(req,file,cb){
+        timestamp =+ new Date()
+        console.log(timestamp)
+        cb(null,'exam_' + timestamp+'.xlsx')
+        //upload_exam()
+    }
+});
+
+var upload2 = multer({storage: storage2})
+
+userRouter.get('/upload_exam',function(req,res){
+    res.render('upload_exam')
+})
+
+async function insert_problem_func(prob_json, exam_id, res){
+    var sql = "insert into problem (exam_id, prob_no, prob_kind, prob_title, prob_score) values ?"
+    for(var i=0;i<prob_json.length;i++){
+        var prob = prob_json[i]
+        var values = [[exam_id, prob["문제번호"], prob["문제유형"], prob["문제설명"], prob["점수"]]]
+        var prob_kind = prob["문제유형"]
+        let promise_insert_problem_inside = new Promise((resolve, reject)=>{
+            conn.query(sql,[values],async function(err,result){
+                if(err)res.send(500,err)
+                else{
+                    var sql1 = "select max(prob_id) as prob_id from problem where exam_id = "+exam_id
+                    let promise_select_prob_id = new Promise((resolve, reject)=>{
+                        conn.query(sql1,[values],async function(err,rows){
+                            if(err)res.send(500,err)
+                            else{
+                                var prob_id = rows[0].prob_id
+                                for(var j=1;j<=5;j++){
+                                    var sql2 = "insert into answer1 (prob_id, answ_value) values ?"
+                                    values = [[prob_id, prob["정답"+j]]]
+                                    conn.query(sql2,[values],function(err,result){
+                                        if(err)res.send(500,err)
+                                        else{
+                                        console.log("insert success!")  
+                                        }
+                                    })
+                                }
+                                resolve(1)
+                            }
+                        })
+                    })
+                    let select_prob_id = await promise_select_prob_id
+                    resolve(1)
+                }
+            })
+        })
+        let insert_problem_inside = await promise_insert_problem_inside
+    }
+    return Promise.resolve(1)
+}
+
+userRouter.post('/upload_exam', upload2.single('file'), async function(req,res){
+    var dir = 'excel/exam_'+timestamp+'.xlsx'
+    let workbook = xlsx.readFile(dir)
+    let worksheet = workbook.Sheets["Sheet1"]
+    let prob_json = xlsx.utils.sheet_to_json(worksheet)
+    /*
+     *  exam 삽입
+     */
+    
+    let promise_insert_exam = new Promise((resolve,reject)=>{
+        var sql = "insert into exam (title, vald_strt_dd, vald_end_dd, rgstr_id, updtr_id) values ?"
+        var body = req.body
+        var values = [[body.title,body.vald_strt_dd,body.vald_end_dd,body.rgstr_id,body.rgstr_id]]
+        conn.query(sql,[values],function(err,result){
+            if(err)res.send(500,err)
+            else{
+                var sql1 = "select max(exam_id) as exam_id from exam"
+                conn.query(sql1,function(err,rows){
+                    if(err)console.log(err)
+                    console.log(rows)
+                    var dir = 'imgs/exam' + rows[0].exam_id
+                    console.log(dir)
+                    !fs.existsSync(dir) && fs.mkdirSync(dir)
+                    dir += '/prob'
+                    !fs.existsSync(dir) && fs.mkdirSync(dir)
+                    dir ='imgs/exam' + rows[0].exam_id + '/ans'
+                    !fs.existsSync(dir) && fs.mkdirSync(dir)
+                    resolve(1)
+                })
+            }
+        })
+    })
+    let insert_exam = await promise_insert_exam
+
+    /*
+    *   현재 exam_id 값을 찾는다
+    */
+    
+    let promise_find_exam_id = new Promise((resolve,reject)=>{
+        var sql = "select max(exam_id) as exam_id from exam"
+        conn.query(sql,function(err,rows,field){
+            if(err)res.send(500,err)
+            else{
+                exam_id = rows[0].exam_id
+                resolve(exam_id)
+            }
+        })
+    })
+    let exam_id = await promise_find_exam_id
+    /*
+     *  problem 삽입
+     */
+
+    let insert_problem = await insert_problem_func(prob_json,exam_id, res)
+    await res.redirect('exam')
+})
+
+
+
 
 export default userRouter;

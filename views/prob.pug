@@ -23,36 +23,28 @@ block content
                 th 문제
                 th 문제 종류
                 th 배점
-                th 제작자
-                th 제작일자
-                th 수정자
-                th 수정일자 
                 th
                 each obj in list
                     tr 
                         td 
-                            script.
-                                document.write(i)
-                                i++
+                            p=obj.prob_no
                         td
-                            img(src = obj.prob_img,width="200",height="200")
+                            if obj.isImg == 'Y'
+                                img(src = obj.prob_img,width="200",height="200")
+                            else 
+                                p=obj.prob_title
                         td
                             p=obj.prob_kind
                         td
-                            p=obj.prob_num
-                        td
-                            p=obj.rgstr_id
-                        td
-                            p=obj.rgst_dt
-                        td
-                            p=obj.updtr_id
-                        td
-                            p=obj.updt_dt
+                            p=obj.prob_score
                         td
                             table
                                 td
                                     p 수정
                                 td
-                                    a(href="/answer/"+obj.prob_id) 답안
+                                    if obj.isImg=='N'
+                                        a(href="/answer/"+obj.prob_id) 답안
+                                    else
+                                        p 답안
                                 td
                                     a(href="/delete_prob/"+obj.prob_id) 삭제

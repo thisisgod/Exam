@@ -16,14 +16,13 @@ block content
     #prob
         form(action='/cor_exam/'+id, method='post') 
             table  
-                th 문제 번호
-                th 답
-                each idx in idxs
-                    tr 
-                        td
-                            p=idx
-                        td
-                            input(type="text",name='ans['+ idx +']')
+                th 답안 파일
+                th
+                tr 
+                    td
+                        p 답안
+                    td
+                        input(type="file",name='file')
                 tr
                     td
                     td
