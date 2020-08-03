@@ -10,20 +10,24 @@ block content
                 width:400px;
                 text-align:center;
             }
+        #first {
+            width = 800px
+        }
+
     script.
         var i=1;
 
     #prob
         form(action='/cor_exam/'+id, method='post', enctype="multipart/form-data") 
-            table  
+            table
                 th 답안 파일
-                th
-                tr 
-                    td
-                        p 답안
-                    td
-                        input(type="file",name="file")
-                tr
-                    td
-                    td
-                        input(type='submit', value='제출')
+                        th
+                        tr 
+                            td
+                                p 답안
+                            td
+                                input(type="file",name="file")
+                        tr
+                            td
+                            td
+                                input(type='submit', value='제출')

@@ -2,41 +2,67 @@ extends ./layouts/ans_main
 
 block content
     style.
-        th,td {
-                border:1px solid darkslategrey;
-                padding:auto;
-                margin:auto;
-                margin-top:50px;
-                width:400px;
-                text-align:center;
-            }
         #exam{
             padding:100px;
             margin:auto;
             font-size:50px;
         }
+        #first {
+            border:1px solid darkslategrey; 
+            width : 300px;
+        }
+        #second{
+            border:1px solid darkslategrey;
+            width : 1000px;
+        }
+        #no{
+            width:40px;
+            vertical-align:top;
+        }
+        #prob{
+            text-align:left;
+        }
+
     script.
         var i = 1;
 
     #exam
         form(action="/take_exam/"+id method='post')
-            each obj in prob
-                script.
-                    document.write(i++)
-                    document.write("  ")
-                img(src = obj.img,width="300",height="300")
-                br
-                br
-                if obj.prob_kind == 'S'
-                    input(type='text', name= 'exam['+obj.id+']')
-                else 
-                    each ans in obj.ans
-                        if obj.prob_kind == 'N'
-                            input(type='radio', name='exam['+obj.id+']',value=ans.id)
-                            text=ans.val
-                        else
-                            input(type='radio',name='exam['+obj.id+']',value=ans.id)
-                            img(src = ans.val,width='150',height='150')
-                br
-                br
+            table
+                th#first
+                    each obj in prob
+                        tr
+                            td
+                                p=obj.prob_no
+                            td
+                                input(type='radio', name='exam['+obj.id+']',value='1')
+                                input(type='radio', name='exam['+obj.id+']',value='2')
+                                input(type='radio', name='exam['+obj.id+']',value='3')
+                                input(type='radio', name='exam['+obj.id+']',value='4')
+                                input(type='radio', name='exam['+obj.id+']',value='5')
+                th#second
+                    each obj in prob
+                        table
+                            td#no
+                                p=obj.prob_no
+                            td#prob
+                                each prob_inf in obj.prob
+                                    if(prob_inf.isImg=='N')
+                                        p=prob_inf.value
+                                    else
+                                        img(src = prob_inf.value,width="300",height="300")
+                                br
+                                br
+                                if obj.prob_kind == 'S'
+                                    input(type='text', name= 'exam['+obj.id+']')
+                                else 
+                                    each ans in obj.ans
+                                        if obj.prob_kind == 'N' 
+                                            input(type='radio', name='exam['+obj.id+']',value=ans.id)
+                                            text=ans.val
+                                        else
+                                            input(type='radio',name='exam['+obj.id+']',value=ans.id)
+                                            img(src = ans.val,width='150',height='150')
+                                br
+                                br
             input(type='submit', value="제출")

@@ -452,17 +452,31 @@ async function GetExam(sql,res){
                         })
                     })
                     let prob_inf1 = await promise2
-                    prob_inf1.img= rows[i].prob_img
                     prob_inf1.prob_kind = rows[i].prob_kind
                     prob_inf1.id = i+1
                     prob_inf1.prob_no = rows[i].prob_no
-                    if(i!=len-1 && rows[i+1].prob_no == rows[i].prob_no)prob.push(prob_inf1)
+                    let promise3 = new Promise((resolve, reject)=>{
+                        var prob_array = new Array()
+                        for(var j = i; j<len;j++){
+                            if(rows[j].prob_no!=rows[i].prob_no)break
+                            var prob_obj = new Object()
+                            prob_obj.isImg = rows[j].isImg
+                            if(prob_obj.isImg=='N')prob_obj.value = rows[j].prob_title
+                            else prob_obj.value = rows[j].prob_img
+                            prob_array.push(prob_obj)
+                        }
+                        if(i!=j)i=j-1;
+                        resolve(prob_array)
+                    })
+                    prob_inf1.prob = await promise3
+                    prob.push(prob_inf1)
                 }
                 resolve(prob)
             }
         })
     })
     let result1 = await promise1
+    console.log(result1)
     return Promise.resolve(result1)
 }
 
